@@ -12,11 +12,11 @@ on:
 # 需要执行的任务列表
 jobs:
   # 镜像转换任务
-  sync_to_dockerhub:
+  sync_to_target_registry:
     # 运行环境
     runs-on: ubuntu-22.04
     # 运行条件 => issues 的 label 包含 image-mirror
-    #if: contains(github.event.issue.labels.*.name, 'image-mirror')
+    # if: contains(github.event.issue.labels.*.name, 'image-mirror')
     # 镜像转换任务的步骤列表
     steps:
       - name: Create comment
@@ -44,8 +44,9 @@ jobs:
         env:
           DOCKER_PASSWD: ${{ secrets.DOCKER_PASSWD }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DEFAULT_REGISTRY: index.docker.io
-          DEFAULT_NAMESPACE: ${{ secrets.DOCKER_USER }} 
+          # DEFAULT_REGISTRY: index.docker.io
+          DEFAULT_REGISTRY: registry.cn-hangzhou.aliyuncs.com
+          DEFAULT_NAMESPACE: ${{ secrets.REGISTRY_NAMESPACE }} 
         #处理body中的空格和tab和换行，并在结尾添加: ， 写入images.yml 文件
         run: | 
           echo "${{ github.event.issue.body }}" > images-init.yml 
@@ -71,7 +72,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['succeed']
+              labels: ['succeed','image-mirror']
             })
 
       - id: get-comment-body
